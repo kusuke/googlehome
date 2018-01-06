@@ -1,0 +1,10 @@
+{
+  "name": "googlehome",
+  "version": "0.0.0",
+  "description": "",
+  "devDependencies": {
+    "broadlinkjs-rm": "^0.2.0",
+    "firebase": "^4.8.1",
+    "sony-bravia-tv-remote": "^2.0.0"
+  }
+}
