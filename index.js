@@ -31,6 +31,7 @@ const rmSend = (command) => {
 // Bravia send
 const braviaSend = (command) => {
 	braviaRemote.sendAction(braviaList[command]);
+  clearDb();
 }
 
 //firebase config
@@ -147,13 +148,17 @@ db.ref(path).on("value", function(changedSnapshot) {
       } else if (typeof command === "function") {
         command()
       }
-
-      //firebase clear
-      db.ref(path).set({[key]: ""})
+      
+      clearDb();
     }
   }
 });
 
 const isSkipValue = (value)=> {
   return (value == "の" || value == "を");
+}
+
+//firebase clear
+const clearDb = ()=> {
+  db.ref(path).set({[key]: ""});
 }
