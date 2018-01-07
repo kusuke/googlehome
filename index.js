@@ -83,7 +83,6 @@ db.ref(path).on("value", function(changedSnapshot) {
 
       //bravia
       "bravia": () => {
-      	console.log(value)
       	let index = 1;
       	const splitValue = value.split(" ")[index];
       	if (isSkipValue(splitValue)) index++;
@@ -97,8 +96,8 @@ db.ref(path).on("value", function(changedSnapshot) {
           "番組": "channellist",
           "音量": ()=>{
           	index++;
-			const nextSplitValue = value.split(" ")[index];
-      		if (isSkipValue(nextSplitValue)) index++;
+			      const nextSplitValue = value.split(" ")[index];
+      		  if (isSkipValue(nextSplitValue)) index++;
           	return getJsonData(value.split(" ")[index], {
              "上げ": "volumeup",
              "下げ": "volumedown",
@@ -108,8 +107,8 @@ db.ref(path).on("value", function(changedSnapshot) {
           },
           "チャンネル": ()=>{
           	index++;
-			const nextSplitValue = value.split(" ")[index];
-      		if (isSkipValue(nextSplitValue)) index++;
+			      const nextSplitValue = value.split(" ")[index];
+      		  if (isSkipValue(nextSplitValue)) index++;
           	return getJsonData(value.split(" ")[index], {
              "変え": "channelup",
              "戻し": "channeldown",
@@ -135,6 +134,47 @@ db.ref(path).on("value", function(changedSnapshot) {
         }
       },
 
+      "ps4": () => {
+        const command = "sudo ps4-waker ";
+        let index = 1;
+        for(var i = index; isSkipValue(value.split(" ")[index]); i++){
+          index++;
+        }
+        const option = getJsonData(value.split(" ")[index], {
+          "起動": " ",
+          "軌道": " ",
+          "つけ": " ",
+          "オン": " ",
+          "スタンバイ": "standby",
+          "消し": "standby",
+          "けし": "standby",
+          "止め": "standby",
+          "とめ": "standby",
+          "停止": "standby",
+          "ホーム": "remote ps",
+          "フォーム": "remote ps",
+          "メニュー": "remote ps",
+          "エンター": "remote enter",
+          "センター": "remote enter",
+          "選択": "remote enter",
+          "バック": "remote back",
+          "戻る": "remote back",
+          "戻って": "remote back",
+          "オプション": "remote options",
+          "上": "remote up",
+          "笛": "remote up",
+          "うえ": "remote up",
+          "下": "remote down",
+          "した": "remote down",
+          "左": "remote left",
+          "右": "remote right",
+          "地球": "start CUSA03653",
+          "ちきゅう": "start CUSA03653",
+          "default": false
+        });
+        return option ? command + option : option;
+      },
+
       //default
       "default": () => false,
 
@@ -144,6 +184,8 @@ db.ref(path).on("value", function(changedSnapshot) {
     if (command) {
       //typeof
       if (typeof command === "string") {
+        const exec = require('child_process').exec;
+        exec(command);
       	console.log(command);
       } else if (typeof command === "function") {
         command()
@@ -155,7 +197,7 @@ db.ref(path).on("value", function(changedSnapshot) {
 });
 
 const isSkipValue = (value)=> {
-  return (value == "の" || value == "を");
+  return (value == "の" || value == "を" || value == "4" || value == "で");
 }
 
 //firebase clear
