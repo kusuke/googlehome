@@ -1,7 +1,6 @@
 import { configFile, clearSpecificWordDb } from './index.js';
 import { getJsonData } from './utils.js';
 import braviaList from './bravialist';
-import rmList from './rmlist';
 import BraviaRemoteControl from 'sony-bravia-tv-remote';
 
 export function braviaCommand(value) {
@@ -98,78 +97,36 @@ export function ps4Command(value) {
   return option ? command + option : option;
 }
 
-export function lightCommand(value, rm) {
-  let index = 1;
-  const splitValue = value.split(" ")[index];
-  if (isSkipValue(splitValue)) index++;
-  const command = getJsonData(value.split(" ")[index], {
-    "つけ": "on",
-    "付け": "on",
-    "オン": "on",
-    "消し": "off",
-    "けし": "off",
-    "オフ": "off",
-    "さわ": "switchA",
-    "さわやか": "switchA",
-    "爽やか": "switchA",
-    "図書": "switchB",
-    "図書館": "switchB",
-    "としょ": "switchB",
-    "としょかん": "switchB",
-    "だん": "switchC",
-    "団欒": "switchC",
-    "だんらん": "switchC",
-    "だんだん": "switchC",
-    "ダウンロード": "switchC",
-    "くつ": "switchD",
-    "くつろぎ": "switchD",
-    "寛ぎ": "switchD",
-    "default": false
-  });
-  return command ? () => rmSend(rm, rmList.light[command]) : command;
-}
-
-export function airConCommand(value, rm) {
-  let index = 1;
-  const splitValue = value.split(" ")[index];
-  if (isSkipValue(splitValue)) index++;
-  const command = getJsonData(value.split(" ")[index], {
-    "消し": "off",
-    "けし": "off",
-    "オフ": "off",
-    "節電": "powerSave",
-    "せつ": "powerSave",
-    "せつでん": "powerSave",
-    "だん": "heat",
-    "だんぼう": "heat",
-    "暖房": "heat",
-    "れい": "cool",
-    "れいぼう": "cool",
-    "冷房": "cool",
-    "温度": ()=>{
-      index++;
-      const nextSplitValue = value.split(" ")[index];
-      if (isSkipValue(nextSplitValue)) index++;
-      return getJsonData(value.split(" ")[index], {
-       "上げ": "up",
-       "下げ": "down",
-       "default": false
-      })
-    },
-    "default": false
-  });
-  return command ? () => rmSend(rm, rmList.light[command]) : command;
-}
-
-export function muscleTrainingNormaAction(allNorma, dayNorma, googlehome) {
-  return googlehome.notify(`今日のノルマは残り ${dayNorma} セットです。`, (res)=> {
+export function muscleTrainingNormaAction(dayNorma, googlehome) {
+  return googlehome.notify(`残り、 ${dayNorma} セットです。`, (res)=>{
     console.log(res);
   });
 }
 
-function rmSend(rm, command) {
-  const hexDataBuffer = new Buffer(command, "hex")
-  rm.sendData(hexDataBuffer)
+export function muscleTrainingAction(newDayNorma, googlehome, timer) {
+  let word;
+  if(timer == "true") {
+    word = `筋トレの時間です。がんばってください。`;
+  } else if(newDayNorma <= 0){
+    word = `完了です。お疲れ様でした。`;
+  } else if(newDayNorma > 0) {
+    word = `残り、 ${newDayNorma} セットです。`
+  } else {
+    word = `がんばりますねぇ。`
+  }
+  return googlehome.notify(word, (res)=> {
+    console.log(res);
+  });
+}
+
+export function muscleTrainingTimerAction(googlehome, timer, dayNorma) {
+  let word;
+  if(timer == "true") {
+    word = `筋トレの時間です。がんばってください。本日は残り、${dayNorma} セットです。`;
+  }
+  return googlehome.notify(word, (res)=> {
+    console.log(res);
+  });
 }
 
 function braviaSend(command) {

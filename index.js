@@ -1,20 +1,10 @@
-import { braviaCommand, ps4Command, lightCommand, airConCommand, muscleTrainingNormaAction, muscleTrainingAction } from './command.js';
+import { braviaCommand, ps4Command, lightCommand, airConCommand, muscleTrainingNormaAction, muscleTrainingAction, muscleTrainingTimerAction } from './command.js';
 import { getJsonData } from './utils.js';
 import firebase from 'firebase';
 import googlehome from 'google-home-notifier';
 import fs from 'fs';
-// import broadlink from './getDevice';
-import rmlist from './rmlist';
 
 export const configFile = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-
-// let rm = {}
-// const timer = setInterval(function() {
-//   rm = broadlink({host: configFile.rm.mac})
-//   if (rm) {
-//     clearInterval(timer)
-//   }
-// }, 100)
 
 //firebase config
 const firebaseConfig = {
@@ -46,18 +36,12 @@ firebaseDB.ref(`${rootPath}${electronicsPath}`).on("value", function(changedSnap
 
   const command = getJsonData(specificWord.split(" ")[0], {
 
-    // "light": ()=>{
-    //   return lightCommand(specificWord, rm);
-    // },
     "bravia": ()=>{
       return braviaCommand(specificWord);
     },
     "ps4": ()=>{
       return ps4Command(specificWord);
     },
-    // "airConditioning": ()=>{
-    //   return airConCommand(specificWord, rm);
-    // },
     "default": () => false,
   })();
 
@@ -73,17 +57,40 @@ firebaseDB.ref(`${rootPath}${electronicsPath}`).on("value", function(changedSnap
 firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).on("value", function(changedSnapshot) {
   const specificWord = changedSnapshot.child(specificWordPath).val();
 
-  const allNorma = changedSnapshot.child('allNorma').val();
-  const dayNorma = changedSnapshot.child('dayNorma').val();
+  const allNorma = Number(changedSnapshot.child('allNorma').val());
+  const dayNorma = Number(changedSnapshot.child('dayNorma').val());
+  const count = Number(specificWord.split(" ")[1]);
+  const timer = changedSnapshot.child('timer').val();
 
   const command = getJsonData(specificWord.split(" ")[0], {
     "muscleTrainingNorma": ()=> {
       return muscleTrainingNormaAction(allNorma, dayNorma, googlehome);
     },
-    "muscleTraining": ()=>{
-      return muscleTrainingAction(specificWord);
+    "muscleTrainingCount": ()=>{
+      const newAllNorma = allNorma - count;
+      const newDayNorma = dayNorma - count;
+      
+      firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).update({
+        "allNorma": newAllNorma,
+        "dayNorma": newDayNorma,
+        "count": "",
+        "word": ""
+      });
+      return muscleTrainingAction(newDayNorma, googlehome);
     },
-    "default": () => false,
+    "default": () => {
+      if(timer != "true"){
+        return false;
+      }
+      const newAllNorma = allNorma + 3;
+      const newDayNorma = dayNorma + 3;
+      firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).update({
+        "allNorma": newAllNorma,
+        "dayNorma": newDayNorma,
+        "timer": "false"
+      });
+      return muscleTrainingTimerAction(googlehome, timer, dayNorma);
+    },
   })();
 
   if (command && typeof command === "string") {
@@ -92,8 +99,6 @@ firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).on("value", function(changedS
   } else if (command && typeof command === "function") {
     command();
   }
-
-  firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).update({"word": ""});
 });
 
 //firebase clear
