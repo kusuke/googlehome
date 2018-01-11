@@ -8,6 +8,7 @@
   "devDependencies": {
     "broadlinkjs-rm": "^0.2.0",
     "firebase": "^4.8.1",
+    "google-home-notifier": "^1.2.0",
     "ps4-waker": "^1.4.3",
     "sony-bravia-tv-remote": "^2.0.0"
   },

@@ -29,7 +29,7 @@ discoverDevices();
 broadlink.on('deviceReady', (device) => {
   const macAddressParts = device.mac.toString('hex').match(/[\s\S]{1,2}/g) || []
   const macAddress = macAddressParts.join(':')
-  device.host.macAddress = macAddress
+  device.host.macAddress = macAddress;
 
   if (discoveredDevices[device.host.address] || discoveredDevices[device.host.macAddress]) return;
 

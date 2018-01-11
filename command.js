@@ -161,6 +161,12 @@ export function airConCommand(value, rm) {
   return command ? () => rmSend(rm, rmList.light[command]) : command;
 }
 
+export function muscleTrainingNormaAction(allNorma, dayNorma, googlehome) {
+  return googlehome.notify(`今日のノルマは残り ${dayNorma} セットです。`, (res)=> {
+    console.log(res);
+  });
+}
+
 function rmSend(rm, command) {
   const hexDataBuffer = new Buffer(command, "hex")
   rm.sendData(hexDataBuffer)
