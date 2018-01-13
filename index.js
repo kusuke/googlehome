@@ -82,8 +82,8 @@ firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).on("value", function(changedS
       if(timer != "true"){
         return false;
       }
-      const newAllNorma = allNorma + 3;
-      const newDayNorma = dayNorma + 3;
+      const newAllNorma = allNorma + 2;
+      const newDayNorma = dayNorma + 2;
       firebaseDB.ref(`${rootPath}${muscleTrainingPath}`).update({
         "allNorma": newAllNorma,
         "dayNorma": newDayNorma,
